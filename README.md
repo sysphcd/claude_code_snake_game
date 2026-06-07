@@ -22,8 +22,16 @@ Press **Ctrl+C** in the terminal to stop the server.
 |-----|--------|
 | Arrow keys | Move the snake |
 | Any arrow key | Start / restart the game |
+| Space | Pause / resume |
 
-- Eat the red food to grow and score points.
+### Food
+
+| Food | Appearance | Effect |
+|------|-----------|--------|
+| Regular food | Red circle | +1 tail segment, +1 point |
+| Super food | Gold star | +2 tail segments, +3 points |
+
+- Super food appears every ~3 seconds and disappears after ~6 seconds (it blinks when expiring).
 - Hitting a wall or your own body ends the game.
 
 ## Files

@@ -47,7 +47,7 @@
     const COLS = canvas.width / CELL;
     const ROWS = canvas.height / CELL;
 
-    let snake, dir, nextDir, foods, score, running, paused, intervalId;
+    let snake, dir, nextDir, foods, superFood, superFoodTimer, superFoodSpawnCounter, score, running, paused, intervalId;
 
     function init() {
       snake = [{ x: 10, y: 10 }, { x: 9, y: 10 }, { x: 8, y: 10 }];
@@ -56,6 +56,9 @@
       score = 0;
       running = false;
       paused = false;
+      superFood = null;
+      superFoodTimer = 0;
+      superFoodSpawnCounter = 0;
       scoreEl.textContent = 'Score: 0';
       messageEl.textContent = 'Press any arrow key to start';
       foods = [];
@@ -73,6 +76,18 @@
         foods.some(f => f.x === pos.x && f.y === pos.y)
       );
       foods.push(pos);
+    }
+
+    function spawnSuperFood() {
+      let pos;
+      do {
+        pos = { x: Math.floor(Math.random() * COLS), y: Math.floor(Math.random() * ROWS) };
+      } while (
+        snake.some(s => s.x === pos.x && s.y === pos.y) ||
+        foods.some(f => f.x === pos.x && f.y === pos.y)
+      );
+      superFood = pos;
+      superFoodTimer = 50;
     }
 
     function start() {
@@ -110,15 +125,35 @@
 
       snake.unshift(head);
 
+      let ate = false;
+
       const eatenIndex = foods.findIndex(f => f.x === head.x && f.y === head.y);
       if (eatenIndex !== -1) {
+        ate = true;
         score++;
         scoreEl.textContent = `Score: ${score}`;
         foods.splice(eatenIndex, 1);
         spawnFood();
-      } else {
-        snake.pop();
       }
+
+      if (superFood && head.x === superFood.x && head.y === superFood.y) {
+        ate = true;
+        score += 3;
+        scoreEl.textContent = `Score: ${score}`;
+        snake.push({ ...snake[snake.length - 1] }); // second extra segment (+2 total)
+        superFood = null;
+        superFoodSpawnCounter = 0;
+      }
+
+      if (!ate) snake.pop();
+
+      // Super food lifecycle
+      superFoodSpawnCounter++;
+      if (!superFood && superFoodSpawnCounter >= 25) {
+        superFoodSpawnCounter = 0;
+        spawnSuperFood();
+      }
+      if (superFood && --superFoodTimer <= 0) superFood = null;
 
       draw();
     }
@@ -128,6 +163,19 @@
       running = false;
       messageEl.textContent = `Game over! Score: ${score} — Press any arrow key to restart`;
       drawGameOver();
+    }
+
+    function drawStar(cx, cy, r) {
+      const pts = 5, inner = r * 0.42;
+      ctx.beginPath();
+      for (let i = 0; i < pts * 2; i++) {
+        const angle = (i * Math.PI) / pts - Math.PI / 2;
+        const rad = i % 2 === 0 ? r : inner;
+        i === 0 ? ctx.moveTo(cx + rad * Math.cos(angle), cy + rad * Math.sin(angle))
+                : ctx.lineTo(cx + rad * Math.cos(angle), cy + rad * Math.sin(angle));
+      }
+      ctx.closePath();
+      ctx.fill();
     }
 
     function draw() {
@@ -150,6 +198,15 @@
         ctx.arc(f.x * CELL + CELL / 2, f.y * CELL + CELL / 2, CELL / 2 - 2, 0, Math.PI * 2);
         ctx.fill();
       });
+
+      // Super food — gold star, blinks when about to expire
+      if (superFood) {
+        const blink = superFoodTimer <= 10 && Math.floor(superFoodTimer / 2) % 2 === 0;
+        if (!blink) {
+          ctx.fillStyle = '#ffd700';
+          drawStar(superFood.x * CELL + CELL / 2, superFood.y * CELL + CELL / 2, CELL / 2 - 1);
+        }
+      }
 
       // Snake
       snake.forEach((seg, i) => {
