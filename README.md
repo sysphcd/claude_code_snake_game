@@ -2,6 +2,8 @@
 
 A classic Snake game that runs in the browser, served by a minimal Python HTTP server.
 
+![Alt text](claude_code_snake_game.png)
+
 ## Requirements
 
 - Python 3.6+
