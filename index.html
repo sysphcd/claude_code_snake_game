@@ -123,29 +123,27 @@
         return gameOver();
       }
 
+      const tail = { ...snake[snake.length - 1] };
       snake.unshift(head);
-
-      let ate = false;
+      snake.pop();
 
       const eatenIndex = foods.findIndex(f => f.x === head.x && f.y === head.y);
       if (eatenIndex !== -1) {
-        ate = true;
         score++;
         scoreEl.textContent = `Score: ${score}`;
         foods.splice(eatenIndex, 1);
         spawnFood();
+        snake.push(tail);
       }
 
       if (superFood && head.x === superFood.x && head.y === superFood.y) {
-        ate = true;
         score += 3;
         scoreEl.textContent = `Score: ${score}`;
-        snake.push({ ...snake[snake.length - 1] }); // second extra segment (+2 total)
+        snake.push({ ...tail });
+        snake.push({ ...tail });
         superFood = null;
         superFoodSpawnCounter = 0;
       }
-
-      if (!ate) snake.pop();
 
       // Super food lifecycle
       superFoodSpawnCounter++;
