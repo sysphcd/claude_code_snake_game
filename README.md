@@ -32,7 +32,8 @@ Press **Ctrl+C** in the terminal to stop the server.
 | Super food | Gold star | +2 tail segments, +3 points |
 
 - Super food appears every ~3 seconds and disappears after ~6 seconds (it blinks when expiring).
-- Hitting a wall or your own body ends the game.
+- The snake wraps around — exiting one edge brings it out the opposite side.
+- Hitting your own body ends the game.
 
 ## Files
 
